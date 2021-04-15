@@ -1,0 +1,1 @@
+python3 demo.py --conf_thres 0.35 --input-video inputs/london_t.mp4
