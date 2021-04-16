@@ -1,4 +1,10 @@
 # atlas-track
+### Download Model
+```
+cd model
+./download.sh
+cd ..
+```
 
 ### Demo
 ```
