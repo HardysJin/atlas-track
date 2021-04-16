@@ -3,3 +3,4 @@ outputs
 inputs
 model/*
 !model/download.sh
+*.pyc 
