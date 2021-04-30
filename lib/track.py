@@ -14,7 +14,6 @@ from multitracker import JDETracker
 from tracking_utils import visualization as vis
 from tracking_utils.log import logger
 from tracking_utils.timer import Timer
-from tracking_utils.evaluation import Evaluator
 
 from tracking_utils.utils import mkdir_if_missing
 from opts import opts

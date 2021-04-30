@@ -1,12 +1,7 @@
-yacs
 opencv-python
-cython
 cython-bbox
 scipy
-progress
 motmetrics
-matplotlib
 lap
-openpyxl
 Pillow
 numpy
