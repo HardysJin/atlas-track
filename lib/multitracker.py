@@ -5,12 +5,10 @@ import itertools
 import os
 import os.path as osp
 import time
-import torch
 import cv2
-import torch.nn.functional as F
 
 from decode import mot_decode
-from tracking_utils.utils import *
+# from tracking_utils.utils import *
 from tracking_utils.log import logger
 from tracking_utils.kalman_filter import KalmanFilter
 # from models import *
@@ -18,7 +16,7 @@ import matching
 from basetrack import BaseTrack, TrackState
 from utils.post_process import ctdet_post_process
 from utils.image import get_affine_transform
-from utils.utils import _tranpose_and_gather_feat
+from utils.utils import get_feat_from_idx
 
 class STrack(BaseTrack):
     shared_kalman = KalmanFilter()
@@ -39,7 +37,6 @@ class STrack(BaseTrack):
         self.update_features(temp_feat)
 
         self.alpha = 0.9
-        self.softmax = torch.nn.Softmax(dim=0)
 
     def update_features(self, feat):
         feat /= np.linalg.norm(feat)
@@ -54,26 +51,6 @@ class STrack(BaseTrack):
         self.features.append(feat)
         self.scores.append(self.score)
         self.smooth_feat /= np.linalg.norm(self.smooth_feat)
-
-    def update_smooth_feat(self): # TODO: refactor using prev smooth feature
-        assert len(self.scores) == len(self.features), "Error: length of score should equal to length of feature"
-        num_prev_feat = len(self.features)
-        # define iintial weights 1/x, x is the last x feature; Try different initial weights
-        initial_weights = torch.tensor([1 for x in range(num_prev_feat, 0, -1)]).cuda()
-        # print(initial_weights)
-        # print(torch.tensor(self.scores).cuda())
-        weights = initial_weights * torch.tensor(self.scores).cuda()
-        # print(weights)
-        # raise Exception
-        # max_score
-        weights = self.softmax(weights)
-        # print("w", weights)
-        # weigght * self.features
-        feats = torch.tensor(self.features).cuda()
-        # print(feats)
-        feats = (feats.T * weights).T
-        # print(feats.shape)
-        self.smooth_feat = feats[0].cpu().numpy()
 
     def predict(self):
         mean_state = self.mean.copy()
@@ -197,7 +174,6 @@ class STrack(BaseTrack):
         return 'OT_{}_({}-{})'.format(self.track_id, self.start_frame, self.end_frame)
 
 
-
 class JDETracker(object):
     def __init__(self, opt, model, frame_rate=30):
         self.opt = opt
@@ -219,7 +195,6 @@ class JDETracker(object):
         self.kalman_filter = KalmanFilter()
 
     def post_process(self, dets, meta):
-        dets = dets.detach().cpu().numpy()
         dets = dets.reshape(1, -1, dets.shape[-1])
         dets = ctdet_post_process(
             dets.copy(), [meta['c']], [meta['s']],
@@ -246,8 +221,6 @@ class JDETracker(object):
 
     def update(self, im_blob, img0):
 
-        st = time.time()
-
         self.frame_id += 1
         activated_starcks = []
         refind_stracks = []
@@ -265,44 +238,28 @@ class JDETracker(object):
                 'out_width': inp_width // self.opt.down_ratio}
 
         ''' Step 1: Network forward, get detections & embeddings'''
-        with torch.no_grad():
-            output = self.model.execute(im_blob)
-            print(1, time.time() - st)
-            output = {
-                'hm': torch.from_numpy(output[0]),
-                'wh': torch.from_numpy(output[1]),
-                'reg': torch.from_numpy(output[2]),
-                'id': torch.from_numpy(output[3]),
-            }
+        output = self.model.execute(im_blob)
+        
+        # sigmoid
+        hm = 1/(1 + np.exp(-output[0]))
 
-            print(2.0, time.time() - st)
-            
-            hm = output['hm'].sigmoid_()
-            wh = output['wh']
-            id_feature = output['id']
-            # id_feature = F.normalize(id_feature, dim=1)
+        wh = output[1]
+        reg = output[2]
+        id_feature = output[3]
+        # id_feature = F.normalize(id_feature, dim=1)
 
-            reg = output['reg'] 
-            dets, inds = mot_decode(hm, wh, reg=reg, ltrb=True, K=self.opt.K, conf_thres=self.opt.conf_thres)
-            print(2.2, time.time() - st)
-
-            id_feature = _tranpose_and_gather_feat(id_feature, inds)
-            print(2.2, time.time() - st)
-  
-            # dets = dets.squeeze(0)
-            # id_feature = get_reid_feat(id_feature, boxes=dets[:, :4])
-            
-            id_feature = id_feature.squeeze(0)
-            id_feature = id_feature.cpu().numpy()
+        dets, inds = mot_decode(hm, wh, reg=reg, ltrb=True, conf_thres=self.opt.conf_thres)
+        # print(dets)
+        id_feature = get_feat_from_idx(id_feature, inds)
+        # print(id_feature.shape)
+        # dets = dets.squeeze(0)
+        # id_feature = get_reid_feat(id_feature, boxes=dets[:, :4])
+        
+        # id_feature = id_feature.squeeze(0)
+        # id_feature = id_feature.cpu().numpy()
 
         dets = self.post_process(dets, meta)
         dets = self.merge_outputs([dets])[1]
-
-        print(3, time.time() - st)
-
-        # remain_inds = dets[:, 4] > self.opt.conf_thres
-        # dets = dets[remain_inds]
-        # id_feature = id_feature[remain_inds]
 
         # vis
         '''
@@ -332,35 +289,25 @@ class JDETracker(object):
                 unconfirmed.append(track)
             else:
                 tracked_stracks.append(track)
-        print(4, time.time() - st)
         ''' Step 2: First association, with embedding'''
         strack_pool = joint_stracks(tracked_stracks, self.lost_stracks)
 
         # Predict the current location with KF
         #for strack in strack_pool:
             #strack.predict()
-        st = time.time()
         STrack.multi_predict(strack_pool)
-        print(5.1, time.time() - st),
-        st = time.time()
 
         # strack_pool:  previous tracklets
         # detections:   current tracklets
         dists = matching.embedding_distance(strack_pool, detections)
-        print(5.2, time.time() - st)
-        st = time.time()
 
         #dists = matching.iou_distance(strack_pool, detections)
         dists = matching.fuse_motion(self.kalman_filter, dists, strack_pool, detections)
-        print(5.3, time.time() - st)
-        st = time.time()
 
         # matches:      [idx of tracked_stracks, idx of detections]
         # u_track:      [index of undefined track]
         # u_detection:  [index of undefined detection]
         matches, u_track, u_detection = matching.linear_assignment(dists, thresh=0.4)
-        print(5.4, time.time() - st)
-        st = time.time()
 
         for itracked, idet in matches:
             track = strack_pool[itracked]
@@ -372,7 +319,6 @@ class JDETracker(object):
                 track.re_activate(det, self.frame_id, new_id=False)
                 refind_stracks.append(track)
         
-        print(5.5, time.time() - st)
         ''' Step 3: Second association, with IOU'''
         detections = [detections[i] for i in u_detection]
         r_tracked_stracks = [strack_pool[i] for i in u_track if strack_pool[i].state == TrackState.Tracked]
@@ -395,7 +341,6 @@ class JDETracker(object):
                 track.mark_lost()
                 lost_stracks.append(track)
 
-        print(6, time.time() - st)
 
         '''Deal with unconfirmed tracks, usually tracks with only one beginning frame'''
         detections = [detections[i] for i in u_detection]
@@ -421,7 +366,6 @@ class JDETracker(object):
             if self.frame_id - track.end_frame > self.max_time_lost:
                 track.mark_removed()
                 removed_stracks.append(track)
-        print(7, time.time() - st)
 
         # print('Ramained match {} s'.format(t4-t3))
 
@@ -441,7 +385,6 @@ class JDETracker(object):
         # logger.debug('Refind: {}'.format([track.track_id for track in refind_stracks]))
         # logger.debug('Lost: {}'.format([track.track_id for track in lost_stracks]))
         # logger.debug('Removed: {}'.format([track.track_id for track in removed_stracks]))
-        print(8, time.time() - st)
 
         return output_stracks
 

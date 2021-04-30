@@ -9,7 +9,6 @@ import cv2
 import logging
 import argparse
 import numpy as np
-import torch
 
 from multitracker import JDETracker
 from tracking_utils import visualization as vis

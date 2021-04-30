@@ -10,5 +10,3 @@ lap
 openpyxl
 Pillow
 numpy
-torch
-torchvision
