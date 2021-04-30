@@ -4,14 +4,12 @@ from __future__ import print_function
 import sys
 sys.path.append('./lib')
 
-# from utils import _init_paths
-import logging
 import os
 import cv2
 import shutil
-import numpy as np
+import argparse
 
-from opts import opts
+import numpy as np
 from dataloader import LoadVideo, LoadImages
 from multitracker import JDETracker
 from tracking_utils.timer import Timer
@@ -66,7 +64,8 @@ def demo(opt):
 
         # run tracking
         timer.tic()
-    
+
+        
         online_targets = tracker.update(np.array([img]), img0)
         online_tlwhs = []
         online_ids = []
@@ -92,5 +91,20 @@ def demo(opt):
 
 
 if __name__ == '__main__':
-    opt = opts().init()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--conf_thres', type=float, default=0.35, help='confidence thresh for tracking')
+    parser.add_argument('--track_buffer', type=int, default=30, help='tracking buffer')
+    parser.add_argument('--min-box-area', type=float, default=100, help='filter out tiny boxes')
+    parser.add_argument('--K', type=int, default=100, help='Max number of detection per image')
+
+    parser.add_argument('--input-video', type=str, default='inputs/london_t.mp4', help='path to the input video')
+    parser.add_argument('--output-format', type=str, default='video', help='video or text')
+    parser.add_argument('--output-root', type=str, default='outputs', help='expected output root path')
+    
+    opt = parser.parse_args()
+    opt.mean = [0.408, 0.447, 0.470]
+    opt.std = [0.289, 0.274, 0.278]
+    opt.down_ratio = 4
+    opt.num_classes = 1
+
     demo(opt)
