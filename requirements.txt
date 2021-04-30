@@ -1,7 +1,6 @@
 opencv-python
 cython-bbox
 scipy
-motmetrics
 lap
 Pillow
 numpy
