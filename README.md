@@ -9,7 +9,7 @@ Multi Object Tracking (MOT) is a challenging topic as it often has two seperate 
 <img src="assets/london_compare.gif" width="1000"/> 
 Or <a href="https://www.youtube.com/watch?v=ndSdGqUV0cg">Youtube</a>
 
-### Quantitative Comparison on GTX1080
+### Quantitative Comparison on [MOT Challenge](https://motchallenge.net/) using GTX1080
 <img src="assets/quantitative_compare.png" width="400"/> 
 
 ### Important Notes
