@@ -7,10 +7,10 @@ Multi Object Tracking (MOT) is a challenging topic as it often has two seperate 
 ## Tracking performance
 ### Sample Comparison for Unseen Video
 <img src="assets/london_compare.gif" width="800"/> 
-Or [Youtube](https://www.youtube.com/watch?v=ndSdGqUV0cg)
+Or <a src="https://www.youtube.com/watch?v=ndSdGqUV0cg">Youtube</a>
 
 ### Quantitative Comparison on GTX1080
-<img src="assets/quantitative_compare.png" width="800"/> 
+<img src="assets/quantitative_compare.png" width="400"/> 
 
 ### Important Notes
 As the tracking/association part uses CPU and cannot be benefitted by HPU, the number of detection impacts the speed a lot.
