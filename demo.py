@@ -62,14 +62,13 @@ def demo(opt):
         if frame_id % 20 == 0:
             print('Processing frame {} ({:.2f} fps)'.format(frame_id, 1. / max(1e-5, timer.average_time)))
 
-        # run tracking
+        # run tracking, start tracking timer 
         timer.tic()
 
-        
+        # list of Tracklet; see multitracker.STrack
         online_targets = tracker.update(np.array([img]), img0)
         online_tlwhs = []
         online_ids = []
-        #online_scores = []
         for t in online_targets:
             tlwh = t.tlwh
             tid = t.track_id
@@ -79,6 +78,7 @@ def demo(opt):
                 online_ids.append(tid)
         timer.toc()
 
+        # draw bbox and id
         online_im = vis.plot_tracking(img0, online_tlwhs, online_ids, frame_id=frame_id,
                                         fps=1. / timer.average_time)
         cv2.imwrite(os.path.join(save_dir, '{:05d}.jpg'.format(frame_id)), online_im)
@@ -94,12 +94,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--conf_thres', type=float, default=0.35, help='confidence thresh for tracking')
     parser.add_argument('--track_buffer', type=int, default=30, help='tracking buffer')
-    parser.add_argument('--min-box-area', type=float, default=100, help='filter out tiny boxes')
+    parser.add_argument('--min_box_area', type=float, default=100, help='filter out tiny boxes')
     parser.add_argument('--K', type=int, default=100, help='Max number of detection per image')
 
-    parser.add_argument('--input-video', type=str, default='inputs/london_t.mp4', help='path to the input video')
-    parser.add_argument('--output-format', type=str, default='video', help='video or text')
-    parser.add_argument('--output-root', type=str, default='outputs', help='expected output root path')
+    parser.add_argument('--input_video', type=str, default='inputs/london_t.mp4', help='path to the input video')
+    parser.add_argument('--output_format', type=str, default='video', help='video or text')
+    parser.add_argument('--output_root', type=str, default='outputs', help='expected output root path')
     
     opt = parser.parse_args()
     opt.mean = [0.408, 0.447, 0.470]

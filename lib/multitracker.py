@@ -242,36 +242,24 @@ class JDETracker(object):
         
         # sigmoid
         hm = 1/(1 + np.exp(-output[0]))
-
         wh = output[1]
         reg = output[2]
         id_feature = output[3]
-        # id_feature = F.normalize(id_feature, dim=1)
 
-        dets, inds = mot_decode(hm, wh, reg=reg, ltrb=True, conf_thres=self.opt.conf_thres)
-        # print(dets)
+        '''
+        dets: n * 6 matrix where n is number of detections
+              6 elements:
+                bbox_top_left x, y; bbox_bottom_right x, y; conf_score; class
+        inds: indices of detection in flatten array (152*272)
+        '''
+        dets, inds = mot_decode(hm, wh, reg, conf_thres=self.opt.conf_thres)
+
+        # n * 128, where 128 is id feature vector size
         id_feature = get_feat_from_idx(id_feature, inds)
-        # print(id_feature.shape)
-        # dets = dets.squeeze(0)
-        # id_feature = get_reid_feat(id_feature, boxes=dets[:, :4])
-        
-        # id_feature = id_feature.squeeze(0)
-        # id_feature = id_feature.cpu().numpy()
 
+        # scale change and remove detections with small bbox
         dets = self.post_process(dets, meta)
         dets = self.merge_outputs([dets])[1]
-
-        # vis
-        '''
-        for i in range(0, dets.shape[0]):
-            bbox = dets[i][0:4]
-            cv2.rectangle(img0, (bbox[0], bbox[1]),
-                          (bbox[2], bbox[3]),
-                          (0, 255, 0), 2)
-        cv2.imshow('dets', img0)
-        cv2.waitKey(0)
-        id0 = id0-1
-        '''
 
         if len(dets) > 0:
             '''Detections'''
@@ -293,8 +281,6 @@ class JDETracker(object):
         strack_pool = joint_stracks(tracked_stracks, self.lost_stracks)
 
         # Predict the current location with KF
-        #for strack in strack_pool:
-            #strack.predict()
         STrack.multi_predict(strack_pool)
 
         # strack_pool:  previous tracklets
@@ -379,12 +365,6 @@ class JDETracker(object):
         self.tracked_stracks, self.lost_stracks = remove_duplicate_stracks(self.tracked_stracks, self.lost_stracks)
         # get scores of lost tracks
         output_stracks = [track for track in self.tracked_stracks if track.is_activated]
-
-        # logger.debug('===========Frame {}=========='.format(self.frame_id))
-        # logger.debug('Activated: {}'.format([track.track_id for track in activated_starcks]))
-        # logger.debug('Refind: {}'.format([track.track_id for track in refind_stracks]))
-        # logger.debug('Lost: {}'.format([track.track_id for track in lost_stracks]))
-        # logger.debug('Removed: {}'.format([track.track_id for track in removed_stracks]))
 
         return output_stracks
 

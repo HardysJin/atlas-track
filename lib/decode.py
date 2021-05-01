@@ -43,7 +43,13 @@ def _nms(heat):
     keep = (hmax == heat).astype(float)
     return heat * keep
 
-def mot_decode(heat, wh, reg, ltrb=True, conf_thres=None):
+def mot_decode(heat, wh, reg, conf_thres):
+    '''
+    Returns:
+        dets: n * 6 matrix where n is number of detections
+                bbox_top_left x, y; bbox_bottom_right x, y; conf_score; class
+        inds: indices of detection in flatten array (152*272)
+    '''
     batch, cat, height, width = heat.shape
 
     # perform nms on heatmaps
