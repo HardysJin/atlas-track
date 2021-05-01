@@ -1,13 +1,13 @@
 # atlas-track
-Pedestrian Detection and Tracking on Atlas boards, dlav0 version of [FairMOT](https://github.com/ifzhang/FairMOT).
+Pedestrian Detection and Tracking on Atlas 200DK, a dlav0 version of [FairMOT](https://github.com/ifzhang/FairMOT).
 
 ## Introduction
 Multi Object Tracking (MOT) is a challenging topic as it often has two seperate tasks for detection and tracking. Recent attention focus on accomplishing the two tasks in a single network to improve the inference speed. [FairMOT](https://github.com/ifzhang/FairMOT), compared to [JDE](https://github.com/Zhongdao/Towards-Realtime-MOT), uses anchor-free CenterNet as the backbone to balance the detection and re-id branches and Kalman Filter for bounding box state prediction, resulting state-of-the-arts accuracy and near real-time speed (30 fps) using good GPUs. The dlav0 version has slightly lower accuracy but ~2x faster. The speed on Atlas 200DK is ~8 FPS depending on number of detections.
 
 ## Tracking performance
 ### Sample Comparison for Unseen Video
-<img src="assets/london_compare.gif" width="800"/> 
-Or <a src="https://www.youtube.com/watch?v=ndSdGqUV0cg">Youtube</a>
+<img src="assets/london_compare.gif" width="1000"/> 
+Or <a href="https://www.youtube.com/watch?v=ndSdGqUV0cg">Youtube</a>
 
 ### Quantitative Comparison on GTX1080
 <img src="assets/quantitative_compare.png" width="400"/> 
@@ -16,6 +16,7 @@ Or <a src="https://www.youtube.com/watch?v=ndSdGqUV0cg">Youtube</a>
 As the tracking/association part uses CPU and cannot be benefitted by HPU, the number of detection impacts the speed a lot.
 
 ## Installation
+Python 3.6.9
 ### Download Model
 ```
 cd model
@@ -24,7 +25,6 @@ cd ..
 ```
 
 ### Install Dependencies
-Python 3.6.9
 ```
 pip3 install -r requirements.txt
 ```
