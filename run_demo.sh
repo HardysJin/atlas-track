@@ -1,1 +1,1 @@
-python3 demo.py --conf_thres 0.35 --input_video inputs/london_t.mp4
+python3 main.py --conf_thres 0.35 --input_video inputs/london_t.mp4
