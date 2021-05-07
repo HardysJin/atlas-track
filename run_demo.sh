@@ -1,1 +1,0 @@
-python3 main.py --conf_thres 0.35 --input_video inputs/london_t.mp4
