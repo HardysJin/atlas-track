@@ -16,24 +16,25 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import sys
-sys.path.append('./lib')
 
+import sys
 import os
 import cv2
 import shutil
 import argparse
-
 import numpy as np
+
+sys.path.append("../../../common/")
+# sys.path.append('./lib')
+
+
 from dataloader import LoadVideo, LoadImages
 from multitracker import JDETracker
 from tracking_utils.timer import Timer
 from tracking_utils import visualization as vis
 
-#ACL model load and execute implementation
-from acl_model import Model
-#ACL init and resource management implementation
-from acl_resource import AclResource 
+from atlas_utils.acl_model import Model
+from atlas_utils.acl_resource import AclResource 
 
 def mkdir_if_missing(d):
     if not os.path.exists(d):
