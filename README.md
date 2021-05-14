@@ -41,18 +41,20 @@ Before deploying this sample, ensure that:
 
       ```
      cd $HOME
-     unzip ascend-samples-master.zipt
+     unzip ascend-samples-master.zip
       ```
 #### 2. Obtain the model required by the application.
 
-   Obtain the model used in the application by referring to the following table and save it to the following project directory in the development environment.
+   Navigate to the following directory in the development environment and run the download model script to obtain the model used in the application.
 
 	cd $HOME/samples/python/contrib/atlas-track/model
+    bash download.sh
 
+<!--
 | **Model Name**     | **Description**                      | **How to Obtain**                        |
 | ------------------ | ------------------------------------ | ---------------------------------------- |
 | dlav0.om | Pedestrian tracking model based on Caffe | `wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1SzsfCCR8DxlkNxX1DT4dTjvYsLrpdV8f' -O dlav0.om`  |
-
+-->
 
 #### 3. Convert the original model to a Da Vinci model.
 
