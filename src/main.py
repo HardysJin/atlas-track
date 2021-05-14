@@ -48,7 +48,7 @@ def main(opt):
     acl_resource.init()
 
     # Step 2: Load models 
-    mot_model = Model(acl_resource, 'model/dlav0.om')
+    mot_model = Model('../model/dlav0.om')
 
     # Create output dir if not exist; default outputs
     result_root = opt.output_root if opt.output_root != '' else '.'

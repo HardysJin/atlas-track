@@ -4,3 +4,4 @@ inputs
 model/*
 !model/download.sh
 *.pyc 
+*.mp4
