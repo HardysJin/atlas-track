@@ -1,5 +1,5 @@
 #!/bin/bash
-dlav0_model='https://docs.google.com/uc?export=download&id=1SzsfCCR8DxlkNxX1DT4dTjvYsLrpdV8f'
+dlav0_model='https://docs.google.com/uc?export=download&id=1RU1UBVH5EBbVV4CVAPuNokSzpfx9A3Ug'
 dlav0_model_name="dlav0"
 version=$1
 data_source="../data/"

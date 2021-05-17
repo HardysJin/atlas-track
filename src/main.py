@@ -25,8 +25,6 @@ import argparse
 import numpy as np
 
 sys.path.append("../../../common/")
-# sys.path.append('./lib')
-
 
 from dataloader import LoadVideo, LoadImages
 from multitracker import JDETracker
@@ -48,7 +46,7 @@ def main(opt):
     acl_resource.init()
 
     # Step 2: Load models 
-    mot_model = Model('../model/dlav0.om')
+    mot_model = Model('../model/mot_v2.om')
 
     # Create output dir if not exist; default outputs
     result_root = opt.output_root if opt.output_root != '' else '.'
@@ -102,10 +100,10 @@ def main(opt):
         cv2.imwrite(os.path.join(save_dir, '{:05d}.jpg'.format(frame_id)), online_im)
 
 
-    # if opt.output_format == 'video':
-    #     output_video_path = os.path.join(result_root, os.path.basename(opt.input_video).replace(' ', '_'))
-    #     cmd_str = 'ffmpeg -f image2 -i {}/%05d.jpg -b 5000k -c:v mpeg4 {}'.format(frame_dir, output_video_path)
-    #     os.system(cmd_str)
+    if opt.output_format == 'video':
+        output_video_path = os.path.join(result_root, os.path.basename(opt.input_video).replace(' ', '_'))
+        cmd_str = 'ffmpeg -f image2 -i {}/%05d.jpg -b 5000k -c:v mpeg4 {}'.format(save_dir, output_video_path)
+        os.system(cmd_str)
 
 
 if __name__ == '__main__':
@@ -116,8 +114,9 @@ if __name__ == '__main__':
     parser.add_argument('--K', type=int, default=100, help='Max number of detection per image')
 
     parser.add_argument('--input_video', type=str, default='inputs/london_t.mp4', help='path to the input video')
-    # parser.add_argument('--output_format', type=str, default='video', help='video or text')
     parser.add_argument('--output_root', type=str, default='outputs', help='expected output root path')
+    parser.add_argument('--output_type', type=str, default='images', help='images or video (require `ffmpeg`)')
+
     parser.add_argument('--rm_prev', action="store_true", help='remove previous save dir ( rm -rf outputs/video_name )')
     
     opt = parser.parse_args()

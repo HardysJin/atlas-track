@@ -16,7 +16,6 @@ import matching
 from basetrack import BaseTrack, TrackState
 from utils.post_process import ctdet_post_process
 from utils.image import get_affine_transform
-from utils.utils import get_feat_from_idx
 
 class STrack(BaseTrack):
     shared_kalman = KalmanFilter()
@@ -238,13 +237,8 @@ class JDETracker(object):
                 'out_width': inp_width // self.opt.down_ratio}
 
         ''' Step 1: Network forward, get detections & embeddings'''
-        output = self.model.execute(im_blob)
-        
-        # sigmoid
-        hm = 1/(1 + np.exp(-output[0]))
-        wh = output[1]
-        reg = output[2]
-        id_feature = output[3]
+        # Please verify using shape
+        id, reg, wh, hm = self.model.execute(im_blob)
 
         '''
         dets: n * 6 matrix where n is number of detections
@@ -252,15 +246,12 @@ class JDETracker(object):
                 bbox_top_left x, y; bbox_bottom_right x, y; conf_score; class
         inds: indices of detection in flatten array (152*272)
         '''
-        dets, inds = mot_decode(hm, wh, reg, conf_thres=self.opt.conf_thres)
-
         # n * 128, where 128 is id feature vector size
-        id_feature = get_feat_from_idx(id_feature, inds)
+        dets, id_feature = mot_decode(hm, wh, reg, id, conf_thres=self.opt.conf_thres)
 
         # scale change and remove detections with small bbox
         dets = self.post_process(dets, meta)
         dets = self.merge_outputs([dets])[1]
-
         if len(dets) > 0:
             '''Detections'''
             # dets[:, :5]: bboxes (4), score (1)
@@ -277,6 +268,7 @@ class JDETracker(object):
                 unconfirmed.append(track)
             else:
                 tracked_stracks.append(track)
+
         ''' Step 2: First association, with embedding'''
         strack_pool = joint_stracks(tracked_stracks, self.lost_stracks)
 

@@ -53,7 +53,7 @@ Before deploying this sample, ensure that:
 <!--
 | **Model Name**     | **Description**                      | **How to Obtain**                        |
 | ------------------ | ------------------------------------ | ---------------------------------------- |
-| dlav0.om | Pedestrian tracking model based on Caffe | `wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1SzsfCCR8DxlkNxX1DT4dTjvYsLrpdV8f' -O dlav0.om`  |
+| dlav0.om | Pedestrian tracking model based on Caffe | `wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1RU1UBVH5EBbVV4CVAPuNokSzpfx9A3Ug' -O dlav0.om`  |
 -->
 
 #### 3. Convert the original model to a Da Vinci model.
