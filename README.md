@@ -68,9 +68,8 @@ Before deploying this sample, ensure that:
 
    For CANN 3.3.0 alpha6 <br/>
    2. Go to the project directory (atlas-track) and run the model conversion command to convert the model:
-   ```
-   atc --input_shape="input.1:1,3,608,1088" --check_report=./network_analysis.report --input_format=NCHW --output=model/mot_v2 --soc_version=Ascend310 --framework=5 --model=model/mot_v2.onnx
-   ```
+
+      atc --input_shape="input.1:1,3,608,1088" --check_report=./network_analysis.report --input_format=NCHW --output=model/mot_v2 --soc_version=Ascend310 --framework=5 --model=model/mot_v2.onnx
 
 #### 3. Obtain the test image required by the sample.
 
