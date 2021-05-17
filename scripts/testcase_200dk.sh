@@ -85,6 +85,7 @@ function main() {
 
         # Is this step necessary if we downloaded a .om?
         cd ${project_path}/model/
+        atc --input_shape="input.1:1,3,608,1088" --check_report=./network_analysis.report --input_format=NCHW --output=${HOME}/models/${project_name}/${mot_v2_model_name} --soc_version=Ascend310 --framework=5 --model=${project_path}/model/mot_v2.onnx 
         # atc --framework=3 --model=${project_path}/model/yolo_model.pb --input_shape="input_1:1,416,416,3" --input_format=NHWC --output=${HOME}/models/${project_name}/${yolo_model_name} --output_type=FP32 --soc_version=Ascend310
         if [ $? -ne 0 ];then
             echo "ERROR: convert mot_v2 model failed"

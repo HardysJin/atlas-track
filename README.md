@@ -45,18 +45,20 @@ Before deploying this sample, ensure that:
       ```
 #### 2. Obtain the model required by the application.
 
-   Navigate to the following directory in the development environment and run the download model script to obtain the model used in the application.
+   Ensure you are in the project directory (`atlas-track/`) and run one of the following commands in the table to obtain the pedestrian tracking model used in the application.
 
-	cd $HOME/samples/python/contrib/atlas-track/model
-    bash download.sh
+	cd $HOME/samples/python/contrib/atlas-track/
 
-<!--
-| **Model Name**     | **Description**                      | **How to Obtain**                        |
-| ------------------ | ------------------------------------ | ---------------------------------------- |
-| mot_v2.om | Pedestrian tracking model based on Caffe | `wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1RU1UBVH5EBbVV4CVAPuNokSzpfx9A3Ug' -O mot_v2.om`  |
--->
+| **Model**  |  **How to Obtain** |
+| ---------- |  ----------------- |
+| mot_v2.om | `wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1RU1UBVH5EBbVV4CVAPuNokSzpfx9A3Ug' -O model/mot_v2.om`  |
+| mot_v2.onxn | `wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1Esjf7Mj-CTh-VQGNHEcpX2uwJlQEnrJD' -O model/mot_v2.onnx`  |
 
-#### 3. Convert the original model to a Da Vinci model.
+   ![Icon-note.gif](https://images.gitee.com/uploads/images/2020/1106/160652_6146f6a4_5395865.gif) **NOTE**
+   >- `mot_v2.om` offline model you can use out-of-the-box without model conversion. If you use this then you can skip the next step on model conversion.
+   >- `mot_v2.onnx` ONNX model for those that want to configure the model conversion process.
+
+#### 3. Convert the original model to a DaVinci model.
 
    **Note: Ensure that the environment variables have been configured in [Environment Preparation and Dependency Installation](https://gitee.com/ascend/samples/tree/master/python/environment).**
 
@@ -64,14 +66,15 @@ Before deploying this sample, ensure that:
 
       The ***LD_LIBRARY_PATH*** environment variable conflicts with the sample when Ascend Tensor Compiler (ATC) is used. Therefore, you need to set this environment variable separately in the command line to facilitate modification.
       
-            export LD_LIBRARY_PATH=${install_path}/atc/lib64
+          export LD_LIBRARY_PATH=${install_path}/atc/lib64
 
-   For CANN 3.3.0 alpha6 <br/>
+   For **CANN 3.3.0-alpha006**: <br/>
+
    2. Go to the project directory (atlas-track) and run the model conversion command to convert the model:
 
-      atc --input_shape="input.1:1,3,608,1088" --check_report=./network_analysis.report --input_format=NCHW --output=model/mot_v2 --soc_version=Ascend310 --framework=5 --model=model/mot_v2.onnx
+          atc --input_shape="input.1:1,3,608,1088" --check_report=./network_analysis.report --input_format=NCHW --output=model/mot_v2 --soc_version=Ascend310 --framework=5 --model=model/mot_v2.onnx
 
-#### 3. Obtain the test image required by the sample.
+#### 4. Obtain the test image required by the sample.
 
 Navigate to the following project directory and then run the get data script to download test images.
 
