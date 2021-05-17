@@ -1,6 +1,6 @@
 #!/bin/bash
-dlav0_model='https://docs.google.com/uc?export=download&id=1RU1UBVH5EBbVV4CVAPuNokSzpfx9A3Ug'
-dlav0_model_name="dlav0"
+mot_v2_model='https://docs.google.com/uc?export=download&id=1RU1UBVH5EBbVV4CVAPuNokSzpfx9A3Ug'
+mot_v2_model_name="mot_v2"
 version=$1
 data_source="../data/"
 verify_source="../data/"
@@ -49,10 +49,10 @@ function setRunEnv() {
 
 function downloadOriginalModel() {
     mkdir -p ${project_path}/model/
-    wget --no-check-certificate ${dlav0_model} -O ${project_path}/model/${dlav0_model_name}.om
+    wget --no-check-certificate ${mot_v2_model} -O ${project_path}/model/${mot_v2_model_name}.om
 
     if [ $? -ne 0];then
-        echo "Install dlav0.om failed, please check Network"
+        echo "Install mot_v2.om failed, please check Network"
         return 1
     fi
 
@@ -67,12 +67,12 @@ function main() {
     fi
 
     mkdir -p ${HOME}/models/${project_name}     
-    # dlav0 conversion (-if find returns an empty string, then download model)
-    if [[ $(find ${HOME}/models/${project_name} -name ${dlav0_model_name}".om")"x" = "x" ]];then 
+    # mot_v2 conversion (-if find returns an empty string, then download model)
+    if [[ $(find ${HOME}/models/${project_name} -name ${mot_v2_model_name}".om")"x" = "x" ]];then 
 
         downloadOriginalModel
         if [ $? -ne 0 ];then
-            echo "ERROR: download original dlav0 model failed"
+            echo "ERROR: download original mot_v2 model failed"
             return ${inferenceError}
         fi
 
@@ -87,17 +87,17 @@ function main() {
         cd ${project_path}/model/
         # atc --framework=3 --model=${project_path}/model/yolo_model.pb --input_shape="input_1:1,416,416,3" --input_format=NHWC --output=${HOME}/models/${project_name}/${yolo_model_name} --output_type=FP32 --soc_version=Ascend310
         if [ $? -ne 0 ];then
-            echo "ERROR: convert dlav0 model failed"
+            echo "ERROR: convert mot_v2 model failed"
             return ${inferenceError}
         fi
 
-        ln -sf ${HOME}/models/${project_name}/${dlav0_model_name}".om" ${project_path}/model/${dlav0_model_name}".om"
+        ln -sf ${HOME}/models/${project_name}/${mot_v2_model_name}".om" ${project_path}/model/${mot_v2_model_name}".om"
         if [ $? -ne 0 ];then
-            echo "ERROR: failed to set dlav0 model soft connection"
+            echo "ERROR: failed to set mot_v2 model soft connection"
             return ${inferenceError}
         fi
     else 
-        ln -sf ${HOME}/models/${project_name}/${dlav0_model_name}".om" ${project_path}/model/${dlav0_model_name}".om"
+        ln -sf ${HOME}/models/${project_name}/${mot_v2_model_name}".om" ${project_path}/model/${mot_v2_model_name}".om"
         if [ $? -ne 0 ];then
             echo "ERROR: failed to set model soft connection"
             return ${inferenceError}

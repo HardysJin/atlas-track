@@ -5,7 +5,7 @@
 **This readme file provides only guidance for running the sample in the command line. For details about how to run the sample in MindStudio, see [Running Image Samples in MindStudio](https://gitee.com/ascend/samples/wikis/Running%20Image%20Samples%20in%20MindStudio?sort_id=3736297).**
 
 ## Sample of Multi-Object Tracking with Atlas-Track
-Function: tracks multiple pedestrians in a scene with the **dlav0.om** model.
+Function: tracks multiple pedestrians in a scene with the **mot_v2.om** model.
 
 Input: a crowd image
 
@@ -53,7 +53,7 @@ Before deploying this sample, ensure that:
 <!--
 | **Model Name**     | **Description**                      | **How to Obtain**                        |
 | ------------------ | ------------------------------------ | ---------------------------------------- |
-| dlav0.om | Pedestrian tracking model based on Caffe | `wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1RU1UBVH5EBbVV4CVAPuNokSzpfx9A3Ug' -O dlav0.om`  |
+| mot_v2.om | Pedestrian tracking model based on Caffe | `wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1RU1UBVH5EBbVV4CVAPuNokSzpfx9A3Ug' -O mot_v2.om`  |
 -->
 
 #### 3. Convert the original model to a Da Vinci model.
@@ -66,15 +66,13 @@ Before deploying this sample, ensure that:
       
             export LD_LIBRARY_PATH=${install_path}/atc/lib64
 
+   For CANN 3.3.0 alpha6 <br/>
+   2. Go to the project directory (atlas-track) and run the model conversion command to convert the model:
+   ```
+   atc --input_shape="input.1:1,3,608,1088" --check_report=./network_analysis.report --input_format=NCHW --output=model/mot_v2 --soc_version=Ascend310 --framework=5 --model=model/mot_v2.onnx
+   ```
 
-   2. Run the following command to convert the model:    
-
-- For CANN 3.1.0 <br/>
-<!-- Due to versioning issues, the model was not converted correctly in version 3.1.0. So we have provided the .om model directly **List the atc command below -->
-- For CANN 3.3.0 <br/>
-
-
-#### 4. Obtain the test image required by the sample.
+#### 3. Obtain the test image required by the sample.
 
 Navigate to the following project directory and then run the get data script to download test images.
 
