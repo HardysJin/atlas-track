@@ -61,7 +61,7 @@ Before deploying this sample, ensure that:
    From the project directory, navigate to the `scripts/` directory and run `get_sample_data.sh` to download sample images for testing the application later in section 4. The sample images will be saved in `data/`.
    
    ```
-   cd $HOME/samples/python/contrib/atlas-track/script/
+   cd $HOME/samples/python/contrib/object_tracking_video/script/
    bash get_sample_data.sh
    ```
 #### 3. Convert the original model to a DaVinci model.
