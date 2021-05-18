@@ -57,7 +57,13 @@ Before deploying this sample, ensure that:
    ![Icon-note.gif](https://images.gitee.com/uploads/images/2020/1106/160652_6146f6a4_5395865.gif) **NOTE**
    >- `mot_v2.om` offline model you can use out-of-the-box without model conversion. If you use this then you can skip the next step on model conversion.
    >- `mot_v2.onnx` ONNX model for those that want to configure the model conversion process.
-
+   
+   From the project directory, navigate to the `scripts/` directory and run `get_sample_data.sh` to download sample images for testing the application later in section 4. The sample images will be saved in `data/`.
+   
+   ```
+   cd $HOME/samples/python/contrib/atlas-track/script/
+   bash get_sample_data.sh
+   ```
 #### 3. Convert the original model to a DaVinci model.
 
    **Note: Ensure that the environment variables have been configured in [Environment Preparation and Dependency Installation](https://gitee.com/ascend/samples/tree/master/python/environment).**
