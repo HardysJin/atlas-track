@@ -93,9 +93,9 @@ Navigate to the following project directory and then run the get data script to 
 
 1. Run the following commands to upload the **object_tracking_video** directory in the development environment to any directory in the operating environment, for example, **/home/HwHiAiUser**, and log in to the operating environment (host) as the running user (**HwHiAiUser**):
       ```
-         scp -r $HOME/samples/python/contrib/object_tracking_video/  HwHiAiUser@xxx.xxx.xxx.xxx:/home/HwHiAiUser
-         scp -r $HOME/samples/python/common/atlas_utils/   HwHiAiUser@xxx.xxx.xxx.xxx:/home/HwHiAiUser
-         ssh HwHiAiUser@xxx.xxx.xxx.xxx
+      scp -r $HOME/samples/python/contrib/object_tracking_video/  HwHiAiUser@xxx.xxx.xxx.xxx:/home/HwHiAiUser
+      scp -r $HOME/samples/python/common/atlas_utils/   HwHiAiUser@xxx.xxx.xxx.xxx:/home/HwHiAiUser
+      ssh HwHiAiUser@xxx.xxx.xxx.xxx
       ```
 
    ![Icon-note.gif](https://images.gitee.com/uploads/images/2020/1106/160652_6146f6a4_5395865.gif) **NOTE**
