@@ -1,10 +1,11 @@
 #!/bin/bash
-mot_v2_model='https://docs.google.com/uc?export=download&id=1RU1UBVH5EBbVV4CVAPuNokSzpfx9A3Ug'
-mot_v2_model_name="mot_v2"
+om_model='https://docs.google.com/uc?export=download&id=1RU1UBVH5EBbVV4CVAPuNokSzpfx9A3Ug'
+onnx_model='https://docs.google.com/uc?export=download&id=1Esjf7Mj-CTh-VQGNHEcpX2uwJlQEnrJD'
+model_name="mot_v2"
 version=$1
-data_source="../data/"
-verify_source="../data/"
-project_name="atlas-track"
+test_img_link='https://docs.google.com/uc?export=download&id=1WWNPkZ9jIfbufZ8SzpUqQiuPTHo_h-lA'
+verify_img_link='https://docs.google.com/uc?export=download&id=1g9XOWpkZzCZxtUUCj4PvzAgjesBs-jJJ'
+project_name="object_tracking_video"
 script_path="$( cd "$(dirname $BASH_SOURCE)" ; pwd -P)"
 project_path=${script_path}/..
 
@@ -49,10 +50,10 @@ function setRunEnv() {
 
 function downloadOriginalModel() {
     mkdir -p ${project_path}/model/
-    wget --no-check-certificate ${mot_v2_model} -O ${project_path}/model/${mot_v2_model_name}.om
+    wget --no-check-certificate ${onnx_model} -O ${project_path}/model/${model_name}.onnx
 
-    if [ $? -ne 0];then
-        echo "Install mot_v2.om failed, please check Network"
+    if [ $? -ne 0 ];then
+        echo "Download mot_v2.onnx failed, please check Network"
         return 1
     fi
 
@@ -68,7 +69,7 @@ function main() {
 
     mkdir -p ${HOME}/models/${project_name}     
     # mot_v2 conversion (-if find returns an empty string, then download model)
-    if [[ $(find ${HOME}/models/${project_name} -name ${mot_v2_model_name}".om")"x" = "x" ]];then 
+    if [[ $(find ${HOME}/models/${project_name} -name ${model_name}".om")"x" = "x" ]];then 
 
         downloadOriginalModel
         if [ $? -ne 0 ];then
@@ -85,20 +86,20 @@ function main() {
 
         # Is this step necessary if we downloaded a .om?
         cd ${project_path}/model/
-        atc --input_shape="input.1:1,3,608,1088" --check_report=./network_analysis.report --input_format=NCHW --output=${HOME}/models/${project_name}/${mot_v2_model_name} --soc_version=Ascend310 --framework=5 --model=${project_path}/model/mot_v2.onnx 
+        atc --input_shape="input.1:1,3,608,1088" --check_report=./network_analysis.report --input_format=NCHW --output=${HOME}/models/${project_name}/${model_name} --soc_version=Ascend310 --framework=5 --model=${project_path}/model/${model_name}.onnx 
         # atc --framework=3 --model=${project_path}/model/yolo_model.pb --input_shape="input_1:1,416,416,3" --input_format=NHWC --output=${HOME}/models/${project_name}/${yolo_model_name} --output_type=FP32 --soc_version=Ascend310
         if [ $? -ne 0 ];then
             echo "ERROR: convert mot_v2 model failed"
             return ${inferenceError}
         fi
 
-        ln -sf ${HOME}/models/${project_name}/${mot_v2_model_name}".om" ${project_path}/model/${mot_v2_model_name}".om"
+        ln -sf ${HOME}/models/${project_name}/${model_name}".om" ${project_path}/model/${model_name}".om"
         if [ $? -ne 0 ];then
             echo "ERROR: failed to set mot_v2 model soft connection"
             return ${inferenceError}
         fi
     else 
-        ln -sf ${HOME}/models/${project_name}/${mot_v2_model_name}".om" ${project_path}/model/${mot_v2_model_name}".om"
+        ln -sf ${HOME}/models/${project_name}/${model_name}".om" ${project_path}/model/${model_name}".om"
         if [ $? -ne 0 ];then
             echo "ERROR: failed to set model soft connection"
             return ${inferenceError}
@@ -113,22 +114,29 @@ function main() {
         echo "ERROR: set executable program running environment failed"
         return ${inferenceError}
     fi
+    
+
+    # Downlaod test images
+    mkdir -p ${project_path}/data/
+    wget -O ${project_path}/data/"test.jpg"  ${test_img_link} --no-check-certificate
+    if [ $? -ne 0 ];then
+        echo "download test.jpg failed, please check Network."
+        return 1
+    fi
+    wget -O ${project_path}/data/"verify.jpg"  ${verify_img_link} --no-check-certificate
+    if [ $? -ne 0 ];then
+        echo "download verify.jpg failed, please check Network."
+        return 1
+    fi
 
     #*** change paths to images ***
-    original_img=${project_path}/data/test.jpg
-    verify_img=${project_path}/data/test_groundtruth.jpg
-    mkdir -p ${project_path}/src/output
-    rm ${project_path}/src/output/*
-    python3 ${project_path}/src/main.py --input_image ${original_img}
+    test_img=${project_path}/data/test.jpg
+    verify_img=${project_path}/data/verify.jpg
+    cd  ${project_path}/src
+    python3 test.py --test_img ${test_img} --verify_img  ${verify_img}
     if [ $? -ne 0 ];then
         echo "ERROR: run failed. please check your project"
         return ${inferenceError}
-    fi   
-    out_img=${project_path}/src/output/test_output.jpg
-    python3 ${script_path}/verify_result.py ${verify_img} ${out_img}
-    if [ $? -ne 0 ];then
-        echo "ERROR: The result of test 1 is wrong!"
-        return ${verifyResError}
     fi   
 
     echo "********run test success********"

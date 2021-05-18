@@ -1,6 +1,6 @@
 .vscode
 outputs
-inputs
+data
 model/*
 !model/download.sh
 *.pyc 
